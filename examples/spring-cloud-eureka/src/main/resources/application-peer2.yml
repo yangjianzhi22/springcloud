@@ -1,0 +1,9 @@
+server:
+  port: 8001
+
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    service-url:
+      - http://localhost:8000/eureka/
