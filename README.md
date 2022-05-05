@@ -10,4 +10,5 @@ Spring Cloud是一系列框架的有序集合。它利用Spring Boot的开发便
 
 #### 学习系列
 
-- [注册中心 eureka](./examples/spring-cloud-eureka/README.md)
+- [注册中心Eureka](./spring-cloud-eureka)
+- [ 服务提供与调用 ](./exmaples/spring-cloud-eureka/README.md)

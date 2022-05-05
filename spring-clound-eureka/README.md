@@ -35,7 +35,7 @@ service provider和serivce Consumer都是客户端
 
 ## 案例实践
 
-#### Eureka Server
+#### [Eureka Server](./spring-cloud-eureka)
 
 1. pom添加依赖
 
@@ -93,6 +93,10 @@ eureka:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 ```
 
+- eureka.client.register-with-eureka ：表示是否将自己注册到Eureka Server，默认为true。
+- eureka.client.fetch-registry ：表示是否从Eureka Server获取注册信息，默认为true。
+- eureka.client.serviceUrl.defaultZone ：设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。默认是http://localhost:8761/eureka ；多个地址可使用 , 分隔。
+
 启动工程后，访问：http://localhost:8000/，可以看到下面的页面，其中还没有发现任何服务
 
 ## 集群
@@ -141,3 +145,55 @@ java -jar spring-cloud-eureka-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2
 
 在生产中我们可能需要三台或者大于三台的注册中心来保证服务的稳定性，配置的原理其实都一样，将注册中心分别指向其它的注册中心。这里只介绍三台集群的配置情况，其实和双节点的注册中心类似，每台注册中心分别又指向其它两个节点即可，使用application.yml来配置。
 
+application.yml配置：
+
+```
+spring:
+  application:
+    name: spring-cloud-eureka
+  profiles: peer1
+server:
+  port: 8000
+eureka:
+  instance:
+    hostname: peer1
+  client:
+    serviceUrl:
+      defaultZone: http://peer2:8001/eureka/,http://peer3:8002/eureka/
+---
+spring:
+  application:
+    name: spring-cloud-eureka
+  profiles: peer2
+server:
+  port: 8001
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:8000/eureka/,http://peer3:8002/eureka/
+---
+spring:
+  application:
+    name: spring-cloud-eureka
+  profiles: peer3
+server:
+  port: 8002
+eureka:
+  instance:
+    hostname: peer3
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:8000/eureka/,http://peer2:8001/eureka/
+```
+
+分别以peer1、peer2、peer3的配置参数启动eureka注册中心。
+
+```
+java -jar spring-cloud-eureka-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1
+java -jar spring-cloud-eureka-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2
+java -jar spring-cloud-eureka-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer3
+```
+
+依次启动完成后，浏览器输入：http://localhost:8000/ 
